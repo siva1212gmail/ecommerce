@@ -1,0 +1,42 @@
+
+{% extends 'eapp/base.html' %}
+{% load static %}
+
+{% block hero%}
+
+<section id="hero">
+  
+    <div class="hero-container">
+    <div class="form">
+      
+        <table class="styled-table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Help</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in view %}
+            <tr>
+                <td>{{v.name}}</td>
+                <td>{{v.email}}</td>
+                <td>{{v.adress}}</td>
+                <td>{{v.help}}</td>
+               <td><button ><a href="/delete/{{v.id}}">delete</a></button></td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+        
+            
+
+    </div>
+    </div>
+  </section>
+  {% endblock hero %}
+
+  

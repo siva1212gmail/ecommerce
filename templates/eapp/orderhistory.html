@@ -1,0 +1,158 @@
+{% extends "eapp/base.html" %}
+
+{% block hero %}
+
+
+<div class="order-container">
+    <h1 class="order-heading">Your Order Details</h1>
+    <div>
+{% for id,products in send.items %}
+
+
+     <h1>order id:  {{id}}</h1>
+    <div class="orders">
+        <table id="newtable" class="order-table">
+            <tr>
+                <th>Products</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>status</th>
+                <th>ordered date</th>
+                <th>delivered date</th>
+            </tr>
+          
+
+
+            {% for i in products %}
+            <tr>
+               
+                <td>{{ i.product_name }}</td>
+                <td>{{ i.product_price }}</td>
+                <td>{{ i.product_qty }}</td>
+                <td>{{ i.product_total_price }}</td>
+                <td>{{ i.delivery_status }}</td>
+                <td>{{ i.orderplaced_date }}</td>
+                <td>{{ i.delevired_date }}</td>
+               
+            </tr>
+            {% endfor %}
+        </table>
+       
+    </div>
+  
+    {% endfor %}
+  
+</div>
+</div>
+
+
+
+<style>
+    /* General styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #606070;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .place-order{
+    
+    
+        color: gold;
+    
+    }
+    
+    #neworder{
+    
+        background-color: purple;
+        padding: 5px;
+        border-radius: 10px;
+        display: inline-block; 
+        transition: transform 0.3s ease;
+        
+    }
+    
+    #neworder:hover{
+         background-color: #333333;
+        transform: scale(1.1);
+    }
+    
+    
+    .order-container {
+    
+        margin-top: 0px;
+        max-width: 900px;
+        margin: 130px auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .order-heading {
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    /* Table styles */
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .order-table th, .order-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #dddddd;
+    }
+    
+    .order-table th {
+        background-color: #007bff;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    
+    .order-table td {
+        color: #555555;
+        background-color: #f9f9f9;
+    }
+    
+    .order-table tr:nth-child(even) td {
+        background-color: #f1f1f1;
+    }
+    
+    /* Total amount styles */
+    .total-amount {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+        margin-top: 20px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .order-container {
+            padding: 10px;
+            margin: 20px auto;
+        }
+    
+        .order-heading {
+            font-size: 24px;
+        }
+    
+        .order-table th, .order-table td {
+            padding: 10px;
+        }
+    
+        .total-amount {
+            font-size: 20px;
+        }
+    }
+    </style>
+{% endblock hero %}

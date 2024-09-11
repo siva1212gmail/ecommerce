@@ -1,0 +1,41 @@
+{% extends 'eapp/base.html' %}
+
+
+
+
+{% block hero%}
+<section id="hero">
+  
+  <div class="hero-container">
+    
+  <div class="form">
+    {% if request.user.is_authenticated %}
+    {% block messages %} {{block.super}} {% endblock messages %}
+    <form  method="POST">
+      {% csrf_token %}
+      
+      <p>contact us</p>
+      
+      <label for="user">name</label>
+      <div><input type="text" id="user" name="name"></div>
+      <label>Email</label>
+      <div><input type="email" name="email" value="{{user.email}}"></div>
+      <label>phone number</label>
+      <div><input type="number" name="phone"></div>
+      <label>adress</label>
+      <div><textarea name="adress"></textarea></div>
+      <label>how can we help you</label>
+      <div><textarea name="help"></textarea></div>
+      <button type="submit" class="btn bg-danger p-2 m-2">submit</button><br>
+    </form>
+    
+  </div>
+  </div>
+
+  {% else %}
+  
+  <h1 style="color: black;" >please login</h1>
+  {% endif %}
+</section>
+  {% endblock hero %}
+ 

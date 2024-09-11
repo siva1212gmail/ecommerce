@@ -1,0 +1,28 @@
+{% extends 'eapp/base.html' %}
+{% load static %}
+
+{% block hero%}
+
+<section id="hero">
+  
+    <div class="hero-container">
+    <div class="form">
+      {% block messages %} {{block.super}} {% endblock messages %}
+      <form action="" method="POST">
+        {% csrf_token %}
+        <p>signup</p>
+        <label for="user">username</label>
+        <div><input type="text" id="user"></div>
+        <label>Email</label>
+        <div><input type="email" name="email"></div>
+        <label>password</label>
+        <div><input type="password" name="password"></div>
+        <label>Re-enter password</label>
+        <div><input type="password" name="conform_password"></div>
+        <button type="submit" class="btn bg-danger p-2 m-2">submit</button><br>
+        <lable>Alredy a user? <a href="/auth/signin/">login</a></lable>
+      </form>
+    </div>
+    </div>
+  </section>
+  {% endblock hero %}

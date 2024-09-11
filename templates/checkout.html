@@ -1,0 +1,194 @@
+{% extends "eapp/base.html" %} 
+
+{% block hero %}
+
+<div class="order-container">
+    <h1 class="order-heading">Your Order Details</h1>
+    {% block messages %} <div  id="order-alert" class="alert alert-warning d-none" role="alert">
+        <strong class="strong" ></strong> <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+       </div>{% endblock messages %}
+    <div class="orders">
+        <table id="newtable" class="order-table">
+            <tr>
+                <th>Products</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </table>
+    </div>
+    <p class="total-amount">Total Amount: <span id="exip_amount">0</span></p>
+    <p class="place-order"  style="cursor:pointer;transform:scale(1.3);"  data-name="${name}" data-price="${price}" data-quantity="${qty}" data-total="${tot}"  onclick="send_function(this)"  > <span  id="neworder" > place order</span></p>
+</div>
+
+<script>
+var table = document.getElementById("newtable");
+var element = JSON.parse(localStorage.getItem("cart"));
+let exitamout = 0;
+let orderlist=[]
+element.forEach((add) => {
+    let qty = add.price * add.qty;
+    exitamout += qty;
+    var save = createelement(add.name, add.price, add.qty, qty);
+    var newelement = document.createElement("tr");
+    newelement.innerHTML = save;
+    table.append(newelement);
+    
+    const exit = document.getElementById("exip_amount");
+    exit.innerHTML = exitamout.toFixed(2);
+    orderlist.push({name:add.name,price:add.price,qty:add.qty,tor_qty:qty})
+});
+
+function createelement(name, price, qty, tot) {
+    return `
+        <td>${name}</td>
+        <td>Rs.${price}</td>
+        <td>${qty}</td>
+        <td>Rs.${tot}</td>`;
+}
+
+function send_function(detail){
+orderplaces=confirm("conform place the order")
+
+if(orderplaces){
+
+    const name = detail.getAttribute("data-name")
+    fetch({% url 'order_history' %},{
+    method:"POST",
+    headers:{
+    'Content-Type':'application/json',
+    'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body:JSON.stringify({order:orderlist})
+    
+    })
+    
+    .then(response=> response.json())
+    .then(datasss=>console.log(datasss.message))
+
+    const alert=document.getElementById("order-alert")
+    alert.querySelector("strong").innerText = "order placed successfully"
+    alert.classList.remove("d-none")
+    
+}
+else{
+
+    console.log("order not placed")
+}
+
+
+}
+
+
+
+</script>
+
+<style>
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #606070;
+    margin: 0;
+    padding: 0;
+}
+
+.place-order{
+
+
+    color: gold;
+
+}
+
+#neworder{
+
+    background-color: purple;
+    padding: 5px;
+    border-radius: 10px;
+    display: inline-block; 
+    transition: transform 0.3s ease;
+    
+}
+
+#neworder:hover{
+     background-color: #333333;
+    transform: scale(1.1);
+}
+
+
+.order-container {
+
+    margin-top: 0px;
+    max-width: 800px;
+    margin: 130px auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+.order-heading {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Table styles */
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.order-table th, .order-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #dddddd;
+}
+
+.order-table th {
+    background-color: #007bff;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.order-table td {
+    color: #555555;
+    background-color: #f9f9f9;
+}
+
+.order-table tr:nth-child(even) td {
+    background-color: #f1f1f1;
+}
+
+/* Total amount styles */
+.total-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .order-container {
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    .order-heading {
+        font-size: 24px;
+    }
+
+    .order-table th, .order-table td {
+        padding: 10px;
+    }
+
+    .total-amount {
+        font-size: 20px;
+    }
+}
+</style>
+
+{% endblock hero %}

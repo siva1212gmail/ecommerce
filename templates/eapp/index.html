@@ -1,0 +1,317 @@
+{% extends 'eapp/base.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+{% block hero %}
+<body>
+
+<section id="hero">
+  <div class="hero-container">
+    <h3>Welcome to <strong>Madurai Cart</strong></h3>
+    <h1>We're Creative Agency</h1>
+    <h2>We are a team of talented designers making websites with Bootstrap</h2>
+    <a href="#about" class="btn-get-started scrollto bg-danger">Shop Now</a>
+  </div>
+</section>
+<p class="d-flex justify-content-center mt-4">
+    <input type="text" id="search" class="form-control search-input" placeholder="Search your products">
+  </p>
+  {% if not request.user.is_authenticated %}
+  <p class="d-flex justify-content-center mt-4">
+    <span  id="search" class="form-control search-out">plese login to order</span>
+  </p>
+{% endif %}
+
+  <div id="product-container"></div>
+
+<!-- Cart Section -->
+<div id="cartshow" class="cart-nest">
+  <div class="cart-title">Cart Items</div>
+  <div class="cart-content"></div>
+  
+  <div class="total">
+    <div class="total-title">Total</div>
+    <div class="total-price">Rs. <span id="total">0</span></div>
+  </div>
+
+  <button class="btn-buy"><a href="{% url 'checkout' %}">Place Order</a></button>
+  <ion-icon name="close" id="cart-close"></ion-icon>
+</div>
+
+<script>
+// Fetch products and display them
+
+
+
+
+let datas;
+document.addEventListener("DOMContentLoaded", function() {
+    const searchBox=document.querySelector("#search");
+searchBox.addEventListener('keyup',(e)=>{
+    searchText=e.target.value.toLowerCase().trim()
+
+    useDataLater(searchText)
+
+
+})
+   
+    
+    fetch('/index/')  // Fetch JSON data from the server
+        .then(response => response.json())
+        .then(data => { datas=data;  
+            displayProducts(datas);
+            useDataLater();})
+        .catch(error => console.error('Error:', error));
+
+
+
+// search appear content update
+        function useDataLater(sear) {
+            if(sear){
+     
+                const filteredData = {};
+        
+            
+            for (const [category, products] of Object.entries(datas)) {
+                filteredData[category] = products.filter(product => 
+                    product.product_Name.toLowerCase().includes(sear)
+                );
+            }
+        
+           
+            document.getElementById('product-container').innerHTML = "";
+            displayProducts(filteredData);
+            const hiders = document.querySelectorAll(".text-success")
+            hiders.forEach(hide=>{
+  hide.style.display="none"
+
+            })
+          
+            }
+          else{
+            document.getElementById('product-container').innerHTML = "";
+            displayProducts(datas);
+            const hiders = document.querySelectorAll(".text-success")
+            hiders.forEach(hide=>{
+                hide.style.display="block"
+              
+                          })
+          }
+
+
+        }
+        
+    
+
+    function displayProducts(data) {
+        const container = document.getElementById('product-container');
+
+        for (const [category, products] of Object.entries(data)) {
+            // Create category header
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.className = 'my-3 text-center text-success bg-light';
+            categoryHeader.textContent = `${category} Flashsale`;
+            container.appendChild(categoryHeader);
+
+            // Create product grid container
+            const productGrid = document.createElement('div');
+            productGrid.className = 'container';
+            
+            const row = document.createElement('div');
+            row.className = 'row';
+            productGrid.appendChild(row);
+
+            products.forEach(product => {
+                // Create product card
+                const col = document.createElement('div');
+                col.className = 'col-md-3 mt-3';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${product.images}" class="card-img-top" alt="not found" height="200px" width="150px">
+                    <div class="card-body">
+                        <h5 class="card-title mt-2">${product.product_Name}</h5>
+                        <p class="card-text">${product.desc.slice(0, 53)}...</p>
+                        <h6 class="card-title mb-3">Price: ${product.price}</h6>
+                        {% if request.user.is_authenticated %}
+                        <button class="btn btn-danger cart btn-sm mt-0" data-src="${product.images}" data-name="${product.product_Name}" data-price="${product.price}" onclick="show(this)">Add to Cart</button>
+                        
+                            {% endif %}
+                        <a href="${product.images}">
+                            <button class="btn btn-dark btn-sm cart">View</button>
+                        </a>
+                    </div>
+                `;
+                col.appendChild(card);
+                row.appendChild(col);
+            });
+
+            container.appendChild(productGrid);
+        }
+    }
+    
+    // Existing cart functionality
+    initializeCart();
+});
+
+function initializeCart() {
+    // Render existing cart items
+    const notes = getitem();
+    const addcartbtn = document.querySelector('.cart-content');
+
+    notes.forEach(note => {
+        const element = createCartItem(note.name, note.src, note.price, note.qty);
+        addcartbtn.appendChild(element);
+    });
+
+    // Attach event listeners to cart quantity inputs
+    attachEventListeners();
+    updateTotal();
+
+    // Cart toggle functionality
+    const el = document.getElementById("popcart");
+    const cart = document.getElementById("cartshow");
+  
+    if (true) {
+        el.addEventListener("click", function() {
+            cart.classList.toggle("cart-active");
+            updateTotal();
+        });
+    }
+}
+
+// Function to create cart item element
+function createCartItem(name, src, price, qty) {
+    const cartBox = document.createElement('div');  
+    cartBox.className = 'cart-box';
+    cartBox.innerHTML = `
+        <img src="${src}" class="cart-img">
+        <div class="detail-box">
+            <div class="cart-food-title">${name}</div>
+            <div class="price-box">
+                <div class="cart-price">${price}</div>
+                <div class="cart-amt">${price * qty}</div>
+            </div>
+            <input type="number" value="${qty}" class="cart-quantity">
+        </div>
+        <ion-icon name="trash" data-name="${name}" onclick="delet(this)" class="cart-remove"></ion-icon>
+    `;
+    return cartBox;
+}
+
+function attachEventListeners() {
+    const qtyInputs = document.querySelectorAll(".cart-quantity");
+
+    qtyInputs.forEach(input => {
+        input.addEventListener("change", function() {
+            updateTotal();
+        });
+    });
+}
+
+function updateTotal() {
+    let total = 0;
+    const currentCart = getitem();
+    const cards = document.querySelectorAll(".cart-box");
+
+    cards.forEach(card => {
+        const value = card.querySelector(".cart-quantity").value;
+        const price = parseFloat(card.querySelector(".cart-price").innerHTML);
+        const name = card.querySelector(".cart-food-title").innerHTML;
+        const newAmt = price * value;
+        card.querySelector(".cart-amt").innerHTML = newAmt;
+        total += newAmt;
+
+        // Update cart item quantity in localStorage
+        let existingItem = currentCart.find(item => item.name === name);
+        if (existingItem) {
+            existingItem.qty = value;
+        }
+    });
+
+    localStorage.setItem("cart", JSON.stringify(currentCart));
+    document.getElementById("total").innerHTML = total;
+}
+
+function show(buttonElement) {
+    const src = buttonElement.getAttribute('data-src');
+    const name = buttonElement.getAttribute('data-name');
+    const price = buttonElement.getAttribute('data-price');
+    const qty = 1;
+
+    const cart = { id: Math.floor(Math.random() * 10), src, name, price, qty };
+    let notes = getitem();
+    const existingItem = notes.find(item => item.name === name);
+
+    if (!existingItem) {
+        notes.push(cart);
+        updateCart(notes);
+    } else {
+        alert("Item already added to cart");
+    }
+}
+
+function delet(iconElement) {
+    if (confirm("Really want to delete item?")) {
+        const name = iconElement.getAttribute("data-name");
+        removeCartItem(name);
+        updateTotal()
+    }
+}
+
+function removeCartItem(name) {
+    let cart = getitem();
+    cart = cart.filter(item => item.name !== name);
+    update(cart);
+ const csrts=document.querySelectorAll(".cart-box")
+       csrts.forEach((elem)=>{
+            item=elem.querySelector(".cart-food-title").innerHTML
+            console.log(item,name,"siva")
+            if(item===name){
+
+                elem.remove();
+            }
+
+       })
+
+    
+
+}
+
+function getitem() {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+}
+
+function update(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart));
+   
+}
+
+
+
+function updateCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    const lastcontent = cart[cart.length -1];
+    const newcartcontent = document.querySelector('.cart-content');
+    const newelement = createCartItem(lastcontent.name, lastcontent.src, lastcontent.price, lastcontent.qty);
+    newcartcontent.appendChild(newelement)
+  
+    updateTotal();
+   
+}
+
+
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+{% endblock hero %}
